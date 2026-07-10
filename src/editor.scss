@@ -1,0 +1,20 @@
+/**
+ * The following styles get applied inside the editor only.
+ */
+
+.wp-block-telex-tucker-automobile-details {
+	.tucker-automobile-details {
+		&__field {
+			textarea {
+				width: 100%;
+				font-family: inherit;
+			}
+		}
+	}
+}
+
+.components-panel__body {
+	.components-base-control {
+		margin-bottom: 16px;
+	}
+}

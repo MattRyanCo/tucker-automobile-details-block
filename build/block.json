@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "telex/tucker-automobile-details",
+  "version": "0.1.0",
+  "title": "Tucker Automobile Details",
+  "category": "text",
+  "icon": "car",
+  "description": "Document Tucker automobile details with comprehensive field tracking.",
+  "example": {
+    "attributes": {
+      "carNumber": "1048",
+      "originalPaintCode": "930",
+      "originalPaintColor": "Waltz Blue",
+      "onDisplay": true
+    }
+  },
+  "attributes": {
+    "carNumber": {
+      "type": "string",
+      "default": ""
+    },
+    "originalPaintCode": {
+      "type": "string",
+      "default": ""
+    },
+    "originalPaintColor": {
+      "type": "string",
+      "default": ""
+    },
+    "currentPaintCode": {
+      "type": "string",
+      "default": ""
+    },
+    "currentPaintColor": {
+      "type": "string",
+      "default": ""
+    },
+    "originalInteriorColor": {
+      "type": "string",
+      "default": ""
+    },
+    "currentInteriorColor": {
+      "type": "string",
+      "default": ""
+    },
+    "bodyNumber": {
+      "type": "string",
+      "default": ""
+    },
+    "originalEngineNumber": {
+      "type": "string",
+      "default": ""
+    },
+    "currentEngineNumber": {
+      "type": "string",
+      "default": ""
+    },
+    "transmissionType": {
+      "type": "string",
+      "default": ""
+    },
+    "ownership": {
+      "type": "string",
+      "default": ""
+    },
+    "location": {
+      "type": "string",
+      "default": ""
+    },
+    "onDisplay": {
+      "type": "boolean",
+      "default": false
+    },
+    "carNotes": {
+      "type": "string",
+      "default": ""
+    },
+    "imageId": {
+      "type": "number",
+      "default": 0
+    },
+    "imageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "imageAlt": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false,
+    "color": {
+      "background": true,
+      "text": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true
+    }
+  },
+  "textdomain": "tucker-automobile-details",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,771 @@
+<?xml version="1.0"?><artefact xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="artefact.xsd" name="Tucker Automobile Details" slug="tucker-automobile-details" type="code-package" schemaVersion="2">
+  <file path="readme.txt">
+    <description>This file contains the readme information for the block. It is used to provide information about the block, its usage, and any other relevant details.</description>
+    <content><![CDATA[
+=== Tucker Automobile Details ===
+
+Contributors:      WordPress Telex
+Tags:              block, tucker, automobile, cars, vintage
+Tested up to:      6.8
+Stable tag:        0.1.0
+License:           GPLv2 or later
+License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+
+A specialized block for documenting Tucker automobile details with proper nomenclature and descriptive information.
+
+== Description ==
+
+The Tucker Automobile Details block provides a structured way to document information about historic Tucker automobiles. It includes fields for:
+
+* Tucker nomenclature (Tucker nnnn format where nnnn is the series number)
+* Detailed vehicle description
+* Production year
+* Current status
+* Location information
+* Historical notes
+
+This block is perfect for automotive historians, collectors, museums, and enthusiasts who want to maintain detailed records of these iconic American automobiles in a consistent format.
+
+The block uses dynamic rendering to ensure that all information is properly displayed on the front end while providing an intuitive editing experience in the WordPress editor.
+
+== Installation ==
+
+1. Upload the plugin files to the `/wp-content/plugins/tucker-automobile-details` directory, or install the plugin through the WordPress plugins screen directly.
+2. Activate the plugin through the 'Plugins' screen in WordPress
+3. Add the "Tucker Automobile Details" block to any post or page
+4. Enter the Tucker series number and other vehicle details
+
+== Frequently Asked Questions ==
+
+= What is the Tucker nomenclature format? =
+
+Tucker automobiles are designated as "Tucker nnnn" where nnnn is a series of numbers identifying the specific vehicle. For example, "Tucker 1001" or "Tucker 1048".
+
+= Can I add multiple Tucker automobile entries on one page? =
+
+Yes! You can add as many Tucker Automobile Details blocks as needed to document multiple vehicles on a single page.
+
+= Is this block compatible with the full site editor? =
+
+Yes, this block works seamlessly with both the post editor and the full site editor.
+
+== Screenshots ==
+
+1. The Tucker Automobile Details block in the editor with all fields visible
+2. The rendered output on the front end showing the formatted vehicle information
+
+== Changelog ==
+
+= 0.1.0 =
+* Initial release
+* Tucker nomenclature field with validation
+* Description and details fields
+* Structured output formatting
+
+== About Tucker Automobiles ==
+
+The Tucker '48 (also known as the Tucker Torpedo) was an automobile conceived by Preston Tucker and briefly produced in Chicago in 1948. Only 51 vehicles were made before the company folded, making them highly sought-after collectibles today.
+]]></content>
+  </file>
+  <file path="tucker-automobile-details.php">
+    <description>This file contains the block registration code in the form of a single block plugin. Any other plugin related functionality should be added to this file. All block rendering functionality should go to the `render.php` file.</description>
+    <content><![CDATA[<?php
+/**
+ * Plugin Name:       Tucker Automobile Details
+ * Description:       A specialized block for documenting Tucker automobile details with proper nomenclature and descriptive information.
+ * Version:           0.1.0
+ * Requires at least: 6.1
+ * Requires PHP:      7.4
+ * Author:            WordPress Telex
+ * License:           GPLv2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       tucker-automobile-details
+ *
+ * @package TuckerAutomobileDetails
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Registers the block using the metadata loaded from the `block.json` file.
+ * Behind the scenes, it registers also all assets so they can be enqueued
+ * through the block editor in the corresponding context.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ */
+function tucker_automobile_details_block_init() {
+	register_block_type( __DIR__ . '/build/' );
+}
+add_action( 'init', 'tucker_automobile_details_block_init' );
+]]></content>
+  </file>
+  <file path="src/block.json">
+    <description>This file contains metadata about the block including its name, title, category, icon, and other properties.</description>
+    <content><![CDATA[{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "telex/tucker-automobile-details",
+	"version": "0.1.0",
+	"title": "Tucker Automobile Details",
+	"category": "text",
+	"icon": "car",
+	"description": "Document Tucker automobile details with comprehensive field tracking.",
+	"example": {
+		"attributes": {
+			"carNumber": "1048",
+			"originalPaintCode": "B-1",
+			"originalPaintColor": "Waltz Blue",
+			"onDisplay": true
+		}
+	},
+	"attributes": {
+		"carNumber": {
+			"type": "string",
+			"default": ""
+		},
+		"originalPaintCode": {
+			"type": "string",
+			"default": ""
+		},
+		"originalPaintColor": {
+			"type": "string",
+			"default": ""
+		},
+		"currentPaintCode": {
+			"type": "string",
+			"default": ""
+		},
+		"currentPaintColor": {
+			"type": "string",
+			"default": ""
+		},
+		"originalInteriorColor": {
+			"type": "string",
+			"default": ""
+		},
+		"currentInteriorColor": {
+			"type": "string",
+			"default": ""
+		},
+		"bodyNumber": {
+			"type": "string",
+			"default": ""
+		},
+		"originalEngineNumber": {
+			"type": "string",
+			"default": ""
+		},
+		"currentEngineNumber": {
+			"type": "string",
+			"default": ""
+		},
+		"transmissionType": {
+			"type": "string",
+			"default": ""
+		},
+		"ownership": {
+			"type": "string",
+			"default": ""
+		},
+		"location": {
+			"type": "string",
+			"default": ""
+		},
+		"onDisplay": {
+			"type": "boolean",
+			"default": false
+		},
+		"imageId": {
+			"type": "number",
+			"default": 0
+		},
+		"imageUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"imageAlt": {
+			"type": "string",
+			"default": ""
+		},
+		"carNotes": {
+			"type": "string",
+			"default": ""
+		},
+	},
+	"supports": {
+		"html": false,
+		"color": {
+			"background": true,
+			"text": true
+		},
+		"spacing": {
+			"padding": true,
+			"margin": true
+		}
+	},
+	"textdomain": "tucker-automobile-details",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}]]></content>
+  </file>
+  <file path="src/index.js">
+    <description>This file registers the block, specifies the edit and save functions, and loads the block's metadata</description>
+    <content><![CDATA[/**
+ * Registers a new block provided a unique name and an object defining its behavior.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
+ */
+import { registerBlockType } from '@wordpress/blocks';
+
+/**
+ * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
+ * All files containing `style` keyword are bundled together. The code used
+ * gets applied both to the front of your site and to the editor.
+ *
+ * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
+ */
+import './style.scss';
+
+/**
+ * Internal dependencies
+ */
+import Edit from './edit';
+import metadata from './block.json';
+
+/**
+ * Every block starts by registering a new block type definition.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
+ */
+registerBlockType( metadata.name, {
+	/**
+	 * @see ./edit.js
+	 */
+	edit: Edit,
+} );
+]]></content>
+  </file>
+  <file path="src/edit.js">
+    <description>This file contains the edit function for the block which is responsible for rendering the block in the editor.</description>
+    <content><![CDATA[/**
+ * Retrieves the translation of text.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
+ * React hook that is used to mark the block wrapper element.
+ * It provides all the necessary props like the class name.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
+ */
+import { useBlockProps, InspectorControls, MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
+
+/**
+ * WordPress dependencies
+ */
+import { PanelBody, TextControl, ToggleControl, Button } from '@wordpress/components';
+
+/**
+ * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
+ * Those files can contain any CSS code that gets applied to the editor.
+ *
+ * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
+ */
+import './editor.scss';
+
+/**
+ * The edit function describes the structure of your block in the context of the
+ * editor. This represents what the editor will render when the block is used.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
+ *
+ * @param {Object}   props               Properties passed to the function.
+ * @param {Object}   props.attributes    Available block attributes.
+ * @param {Function} props.setAttributes Function that updates individual attributes.
+ *
+ * @return {Element} Element to render.
+ */
+export default function Edit( { attributes, setAttributes } ) {
+	const {
+		carNumber,
+		originalPaintCode,
+		originalPaintColor,
+		currentPaintCode,
+		currentPaintColor,
+		originalInteriorColor,
+		currentInteriorColor,
+		bodyNumber,
+		originalEngineNumber,
+		currentEngineNumber,
+		transmissionType,
+		ownership,
+		location,
+		onDisplay,
+		imageId,
+		imageUrl,
+		imageAlt,
+		carNotes
+	} = attributes;
+
+	const onSelectImage = ( media ) => {
+		setAttributes( {
+			imageId: media.id,
+			imageUrl: media.url,
+			imageAlt: media.alt
+		} );
+	};
+
+	const onRemoveImage = () => {
+		setAttributes( {
+			imageId: 0,
+			imageUrl: '',
+			imageAlt: ''
+		} );
+	};
+
+	return (
+		<>
+			<InspectorControls>
+				<PanelBody title={ __( 'Vehicle Identification', 'tucker-automobile-details' ) }>
+					<TextControl
+						label={ __( 'Car Number', 'tucker-automobile-details' ) }
+						help={ __( 'Tucker series number (e.g., 1001, 1048)', 'tucker-automobile-details' ) }
+						value={ carNumber }
+						onChange={ ( value ) => setAttributes( { carNumber: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Body Number', 'tucker-automobile-details' ) }
+						value={ bodyNumber }
+						onChange={ ( value ) => setAttributes( { bodyNumber: value } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Paint Information', 'tucker-automobile-details' ) } initialOpen={ false }>
+					<TextControl
+						label={ __( 'Original Paint Code', 'tucker-automobile-details' ) }
+						value={ originalPaintCode }
+						onChange={ ( value ) => setAttributes( { originalPaintCode: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Original Paint Color', 'tucker-automobile-details' ) }
+						value={ originalPaintColor }
+						onChange={ ( value ) => setAttributes( { originalPaintColor: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Current Paint Code', 'tucker-automobile-details' ) }
+						value={ currentPaintCode }
+						onChange={ ( value ) => setAttributes( { currentPaintCode: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Current Paint Color', 'tucker-automobile-details' ) }
+						value={ currentPaintColor }
+						onChange={ ( value ) => setAttributes( { currentPaintColor: value } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Interior Information', 'tucker-automobile-details' ) } initialOpen={ false }>
+					<TextControl
+						label={ __( 'Original Interior Color', 'tucker-automobile-details' ) }
+						value={ originalInteriorColor }
+						onChange={ ( value ) => setAttributes( { originalInteriorColor: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Current Interior Color', 'tucker-automobile-details' ) }
+						value={ currentInteriorColor }
+						onChange={ ( value ) => setAttributes( { currentInteriorColor: value } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Mechanical Information', 'tucker-automobile-details' ) } initialOpen={ false }>
+					<TextControl
+						label={ __( 'Original Engine Number', 'tucker-automobile-details' ) }
+						value={ originalEngineNumber }
+						onChange={ ( value ) => setAttributes( { originalEngineNumber: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Current Engine Number', 'tucker-automobile-details' ) }
+						value={ currentEngineNumber }
+						onChange={ ( value ) => setAttributes( { currentEngineNumber: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Transmission Type', 'tucker-automobile-details' ) }
+						value={ transmissionType }
+						onChange={ ( value ) => setAttributes( { transmissionType: value } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Ownership & Location', 'tucker-automobile-details' ) } initialOpen={ false }>
+					<TextControl
+						label={ __( 'Ownership', 'tucker-automobile-details' ) }
+						value={ ownership }
+						onChange={ ( value ) => setAttributes( { ownership: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Location', 'tucker-automobile-details' ) }
+						value={ location }
+						onChange={ ( value ) => setAttributes( { location: value } ) }
+					/>
+					<ToggleControl
+						label={ __( 'On Display', 'tucker-automobile-details' ) }
+						checked={ onDisplay }
+						onChange={ ( value ) => setAttributes( { onDisplay: value } ) }
+					/>
+				</PanelBody>
+				
+				<PanelBody title={ __( 'Additional Notes', 'tucker-automobile-details' ) } initialOpen={ false }>
+					<TextControl
+						label={ __( 'Notes', 'tucker-automobile-details' ) }
+						value={ carNotes }
+						onChange={ ( value ) => setAttributes( { carNotes: value } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody title={ __( 'Vehicle Image', 'tucker-automobile-details' ) } initialOpen={ true }>
+					<MediaUploadCheck>
+						<MediaUpload
+							onSelect={ onSelectImage }
+							allowedTypes={ ['image'] }
+							value={ imageId }
+							render={ ( { open } ) => (
+								<>
+									{ imageUrl ? (
+										<>
+											<img
+												src={ imageUrl }
+												alt={ imageAlt || __( 'Tucker automobile', 'tucker-automobile-details' ) }
+												style={ { maxWidth: '100%', height: 'auto', marginBottom: '10px' } }
+											/>
+											<Button
+												onClick={ open }
+												variant="secondary"
+												style={ { marginRight: '10px' } }
+											>
+												{ __( 'Replace Image', 'tucker-automobile-details' ) }
+											</Button>
+											<Button
+												onClick={ onRemoveImage }
+												variant="tertiary"
+												isDestructive
+											>
+												{ __( 'Remove Image', 'tucker-automobile-details' ) }
+											</Button>
+										</>
+									) : (
+										<Button onClick={ open } variant="secondary">
+											{ __( 'Select Image', 'tucker-automobile-details' ) }
+										</Button>
+									) }
+								</>
+							) }
+						/>
+					</MediaUploadCheck>
+				</PanelBody>
+			</InspectorControls>
+
+			<div { ...useBlockProps() }>
+				<div className="tucker-automobile-details">
+					<div className="tucker-automobile-details__content">
+						<div className="tucker-automobile-details__left">
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Car Number:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ carNumber || __( 'Not set', 'tucker-automobile-details' ) }</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Original Paint Code/Color:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">
+									{ originalPaintCode || originalPaintColor ? 
+										`${originalPaintCode || ''} ${originalPaintColor || ''}`.trim() : 
+										__( 'Not set', 'tucker-automobile-details' ) 
+									}
+								</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Current Paint Code/Color:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">
+									{ currentPaintCode || currentPaintColor ? 
+										`${currentPaintCode || ''} ${currentPaintColor || ''}`.trim() : 
+										__( 'Not set', 'tucker-automobile-details' ) 
+									}
+								</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Original Interior Color:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ originalInteriorColor || __( 'Not set', 'tucker-automobile-details' ) }</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Current Interior Color:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ currentInteriorColor || __( 'Not set', 'tucker-automobile-details' ) }</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Body Number:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ bodyNumber || __( 'Not set', 'tucker-automobile-details' ) }</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Original Engine Number:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ originalEngineNumber || __( 'Not set', 'tucker-automobile-details' ) }</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Current Engine Number:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ currentEngineNumber || __( 'Not set', 'tucker-automobile-details' ) }</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Transmission Type:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ transmissionType || __( 'Not set', 'tucker-automobile-details' ) }</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Ownership:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ ownership || __( 'Not set', 'tucker-automobile-details' ) }</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'Location:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ location || __( 'Not set', 'tucker-automobile-details' ) }</span>
+							</div>
+							<div className="tucker-detail-row">
+								<span className="tucker-detail-label">{ __( 'On Display:', 'tucker-automobile-details' ) }</span>
+								<span className="tucker-detail-value">{ onDisplay ? __( 'Yes', 'tucker-automobile-details' ) : __( 'No', 'tucker-automobile-details' ) }</span>
+							</div>
+						</div>
+						<div className="tucker-automobile-details__right">
+							{ imageUrl ? (
+								<img
+									src={ imageUrl }
+									alt={ imageAlt || __( 'Tucker automobile', 'tucker-automobile-details' ) }
+									className="tucker-image"
+								/>
+							) : (
+								<div className="tucker-image-placeholder">
+									<p>{ __( 'No image selected', 'tucker-automobile-details' ) }</p>
+									<p style={ { fontSize: '0.9em', marginTop: '8px' } }>{ __( 'Use the sidebar to select an image', 'tucker-automobile-details' ) }</p>
+								</div>
+							) }
+						</div>
+					</div>
+				</div>
+			</div>
+		</>
+	);
+}]]></content>
+  </file>
+  <file path="src/save.js">
+    <description>This file contains the save function for the block which is responsible for creating the static result of rendering the block on the client to display the saved result on the front end.</description>
+    <content><![CDATA[]]></content>
+  </file>
+  <file path="src/style.scss">
+    <description>This file contains styles for the block in the front end.</description>
+    <content><![CDATA[/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ */
+
+.wp-block-telex-tucker-automobile-details {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.tucker-automobile-details {
+	padding: 0;
+
+	&__content {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 24px;
+		align-items: start;
+
+		@media (max-width: 768px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&__left {
+		display: flex;
+		flex-direction: column;
+	}
+
+	&__right {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+}
+
+.tucker-detail-row {
+	display: flex;
+	gap: 8px;
+	line-height: 1;
+	margin-bottom: 0;
+	padding: 6px 0;
+
+	&:not(:last-child) {
+		border-bottom: 1px solid rgba(30, 58, 138, 0.1);
+	}
+}
+
+.tucker-detail-label {
+	color: #1e3a8a;
+	font-weight: 600;
+	flex-shrink: 0;
+}
+
+.tucker-detail-value {
+	color: #475569;
+	flex: 1;
+}
+
+.tucker-image {
+	width: 100%;
+	height: auto;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	object-fit: cover;
+}
+
+.tucker-image-placeholder {
+	width: 100%;
+	height: 300px;
+	border: 2px dashed #cbd5e1;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.5);
+	color: #64748b;
+	font-style: italic;
+}]]></content>
+  </file>
+  <file path="src/editor.scss">
+    <description>This file contains styles for the block in the editor.</description>
+    <content><![CDATA[/**
+ * The following styles get applied inside the editor only.
+ */
+
+.wp-block-telex-tucker-automobile-details {
+	.tucker-automobile-details {
+		&__field {
+			textarea {
+				width: 100%;
+				font-family: inherit;
+			}
+		}
+	}
+}
+
+.components-panel__body {
+	.components-base-control {
+		margin-bottom: 16px;
+	}
+}
+]]></content>
+  </file>
+  <file path="src/view.js">
+    <description>This file contains the view function for the block which is responsible for rendering interactive behaviors of the block on the front end.</description>
+    <content><![CDATA[/**
+ * Use this file for JavaScript code that you want to run in the front-end
+ * on posts/pages that contain this block.
+ */
+
+/* eslint-disable no-console */
+console.log("Tucker Automobile Details block loaded");
+/* eslint-enable no-console */
+]]></content>
+  </file>
+  <file path="src/render.php">
+    <description>This file contains the render callback function for the block, which is responsible for rendering the block content on the front end.</description>
+    <content><![CDATA[<?php
+/**
+ * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
+ */
+
+$car_number = isset( $attributes['carNumber'] ) ? esc_html( $attributes['carNumber'] ) : '';
+$original_paint_code = isset( $attributes['originalPaintCode'] ) ? esc_html( $attributes['originalPaintCode'] ) : '';
+$original_paint_color = isset( $attributes['originalPaintColor'] ) ? esc_html( $attributes['originalPaintColor'] ) : '';
+$current_paint_code = isset( $attributes['currentPaintCode'] ) ? esc_html( $attributes['currentPaintCode'] ) : '';
+$current_paint_color = isset( $attributes['currentPaintColor'] ) ? esc_html( $attributes['currentPaintColor'] ) : '';
+$original_interior_color = isset( $attributes['originalInteriorColor'] ) ? esc_html( $attributes['originalInteriorColor'] ) : '';
+$current_interior_color = isset( $attributes['currentInteriorColor'] ) ? esc_html( $attributes['currentInteriorColor'] ) : '';
+$body_number = isset( $attributes['bodyNumber'] ) ? esc_html( $attributes['bodyNumber'] ) : '';
+$original_engine_number = isset( $attributes['originalEngineNumber'] ) ? esc_html( $attributes['originalEngineNumber'] ) : '';
+$current_engine_number = isset( $attributes['currentEngineNumber'] ) ? esc_html( $attributes['currentEngineNumber'] ) : '';
+$transmission_type = isset( $attributes['transmissionType'] ) ? esc_html( $attributes['transmissionType'] ) : '';
+$ownership = isset( $attributes['ownership'] ) ? esc_html( $attributes['ownership'] ) : '';
+$location = isset( $attributes['location'] ) ? esc_html( $attributes['location'] ) : '';
+$on_display = isset( $attributes['onDisplay'] ) && $attributes['onDisplay'];
+$image_id = isset( $attributes['imageId'] ) ? intval( $attributes['imageId'] ) : 0;
+$image_url = isset( $attributes['imageUrl'] ) ? esc_url( $attributes['imageUrl'] ) : '';
+$image_alt = isset( $attributes['imageAlt'] ) ? esc_attr( $attributes['imageAlt'] ) : '';
+
+$original_paint_combined = trim( $original_paint_code . ' ' . $original_paint_color );
+$current_paint_combined = trim( $current_paint_code . ' ' . $current_paint_color );
+?>
+
+<div <?php echo get_block_wrapper_attributes(); ?>>
+	<div class="tucker-automobile-details">
+		<div class="tucker-automobile-details__content">
+			<div class="tucker-automobile-details__left">
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Car Number:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $car_number ? $car_number : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Original Paint Code/Color:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $original_paint_combined ? $original_paint_combined : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Current Paint Code/Color:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $current_paint_combined ? $current_paint_combined : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Original Interior Color:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $original_interior_color ? $original_interior_color : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Current Interior Color:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $current_interior_color ? $current_interior_color : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Body Number:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $body_number ? $body_number : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Original Engine Number:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $original_engine_number ? $original_engine_number : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Current Engine Number:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $current_engine_number ? $current_engine_number : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Transmission Type:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $transmission_type ? $transmission_type : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Ownership:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $ownership ? $ownership : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'Location:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $location ? $location : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+				</div>
+				<div class="tucker-detail-row">
+					<span class="tucker-detail-label"><?php esc_html_e( 'On Display:', 'tucker-automobile-details' ); ?></span>
+					<span class="tucker-detail-value"><?php echo $on_display ? esc_html__( 'Yes', 'tucker-automobile-details' ) : esc_html__( 'No', 'tucker-automobile-details' ); ?></span>
+				</div>
+			</div>
+			<div class="tucker-automobile-details__right">
+				<?php if ( $image_url ) : ?>
+					<img src="<?php echo $image_url; ?>" alt="<?php echo $image_alt ? $image_alt : esc_attr__( 'Tucker automobile', 'tucker-automobile-details' ); ?>" class="tucker-image" />
+				<?php else : ?>
+					<div class="tucker-image-placeholder">
+						<p><?php esc_html_e( 'No image uploaded', 'tucker-automobile-details' ); ?></p>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+</div>]]></content>
+  </file>
+</artefact>
