@@ -1,0 +1,1 @@
+# tucker-automobile-details-block
