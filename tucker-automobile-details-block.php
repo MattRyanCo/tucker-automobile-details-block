@@ -105,28 +105,10 @@ function tucker_sync_car_details_from_title( $post_id, $post, $update ) {
 
 	// Update the block content and any gallery shortcode category placeholder.
 	if ( ! empty( $content ) ) {
-		$updated_blocks = parse_blocks( $content );
-		$block_updated  = false;
-
-		if ( ! empty( $updated_blocks ) ) {
-			foreach ( $updated_blocks as &$block ) {
-				if ( 'telex/tucker-automobile-details' !== $block['blockName'] ) {
-					continue;
-				}
-
-				$attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
-				if ( ! isset( $attrs['carNumber'] ) || (string) $attrs['carNumber'] !== (string) $car_number ) {
-					$attrs['carNumber'] = $car_number;
-					$block['attrs'] = $attrs;
-					$block_updated  = true;
-				}
-			}
-			unset( $block );
-
-			if ( $block_updated ) {
-				$updated_content = serialize_blocks( $updated_blocks );
-			}
-		}
+		// Walk the block tree and update the Tucker block's carNumber attribute.
+		$updated_content = serialize_blocks(
+			tucker_set_car_number_in_blocks( parse_blocks( $content ), $car_number )
+		);
 
 		// Replace any gallery shortcode placeholder category with the car number.
 		$updated_content = preg_replace_callback(
