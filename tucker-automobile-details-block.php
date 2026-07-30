@@ -73,23 +73,28 @@ function tucker_sync_car_details_from_title( $post_id, $post, $update ) {
 
 	// Update the block content and any gallery shortcode category placeholder.
 	if ( ! empty( $content ) ) {
-		// Replace the serialized Tucker block attributes in the post content.
-		$updated_content = preg_replace_callback(
-			'/<!--\s*wp:telex\/tucker-automobile-details\b(.*?)\/-->/s',
-			function ( $matches ) use ( $car_number ) {
-				// Pull the block attributes from the serialized comment.
-				$attrs = $matches[1];
-				// Update the existing carNumber value if present.
-				$attrs = preg_replace( '/("carNumber"\s*:\s*")([^"]*)(")/', '$1' . $car_number . '$3', $attrs, 1 );
-				// If the attribute is missing, add it so the block still has a value.
-				if ( false === strpos( $attrs, 'carNumber' ) ) {
-					$attrs = ' {"carNumber":"' . $car_number . '"}' . $attrs;
+		$updated_blocks = parse_blocks( $content );
+		$block_updated  = false;
+
+		if ( ! empty( $updated_blocks ) ) {
+			foreach ( $updated_blocks as &$block ) {
+				if ( 'telex/tucker-automobile-details' !== $block['blockName'] ) {
+					continue;
 				}
 
-				return '<!-- wp:telex/tucker-automobile-details' . $attrs . '/-->';
-			},
-			$content
-		);
+				$attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+				if ( ! isset( $attrs['carNumber'] ) || (string) $attrs['carNumber'] !== (string) $car_number ) {
+					$attrs['carNumber'] = $car_number;
+					$block['attrs'] = $attrs;
+					$block_updated  = true;
+				}
+			}
+			unset( $block );
+
+			if ( $block_updated ) {
+				$updated_content = serialize_blocks( $updated_blocks );
+			}
+		}
 
 		// Replace any gallery shortcode placeholder category with the car number.
 		$updated_content = preg_replace_callback(
