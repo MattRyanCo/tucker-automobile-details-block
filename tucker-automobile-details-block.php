@@ -30,6 +30,38 @@ function tucker_automobile_details_block_init() {
 add_action( 'init', 'tucker_automobile_details_block_init' );
 
 /**
+ * Find the telex/tucker-automobile-details block anywhere in the block tree,
+ * set its carNumber attribute, and return the updated blocks array.
+ * Returns the original array unchanged if the block is not found.
+ *
+ * @param array[]  $blocks     Flat array of parsed block arrays to search.
+ * @param string   $car_number Car number value to write into the block.
+ * @return array[] The blocks array, updated if the Tucker block was found.
+ */
+function tucker_set_car_number_in_blocks( array $blocks, string $car_number ): array {
+	foreach ( $blocks as $index => $block ) {
+		// Found the Tucker block — update the attribute and stop.
+		if ( 'telex/tucker-automobile-details' === $block['blockName'] ) {
+			$attrs                  = is_array( $block['attrs'] ) ? $block['attrs'] : array();
+			$attrs['carNumber']     = $car_number;
+			$blocks[ $index ]['attrs'] = $attrs;
+			return $blocks;
+		}
+
+		// Not found at this level — recurse into innerBlocks if present.
+		if ( ! empty( $block['innerBlocks'] ) ) {
+			$updated_inner = tucker_set_car_number_in_blocks( $block['innerBlocks'], $car_number );
+			if ( $updated_inner !== $block['innerBlocks'] ) {
+				$blocks[ $index ]['innerBlocks'] = $updated_inner;
+				return $blocks;
+			}
+		}
+	}
+
+	return $blocks;
+}
+
+/**
  * Sync the Tucker car number block attribute, gallery shortcode category,
  * and the post slug from the car post title when it follows the Tucker nnnn format.
  *
