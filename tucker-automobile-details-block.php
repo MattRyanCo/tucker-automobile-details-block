@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Tucker Automobile Details
  * Description:       A specialized block for documenting Tucker automobile details with proper nomenclature and descriptive information.
- * Version:           0.1.1
+ * Version:           0.2.0
  * Requires at least: 6.1
  * Requires PHP:      7.4
  * Author:            Matt Ryan
