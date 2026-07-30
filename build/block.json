@@ -103,7 +103,7 @@
       "margin": true
     }
   },
-  "textdomain": "tucker-automobile-details",
+  "textdomain": "tuckerclub",
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",
   "style": "file:./style-index.css",
