@@ -20,7 +20,16 @@ $on_display = isset( $attributes['onDisplay'] ) && $attributes['onDisplay'];
 $image_id = isset( $attributes['imageId'] ) ? intval( $attributes['imageId'] ) : 0;
 $image_url = isset( $attributes['imageUrl'] ) ? esc_url( $attributes['imageUrl'] ) : '';
 $image_alt = isset( $attributes['imageAlt'] ) ? esc_attr( $attributes['imageAlt'] ) : '';
-$car_notes = isset( $attributes['carNotes'] ) ? esc_attr( $attributes['carNotes'] ) : '';
+$car_notes = '';
+
+if ( isset( $attributes['carNotes'] ) && is_string( $attributes['carNotes'] ) && $attributes['carNotes'] !== '' ) {
+	$car_notes = $attributes['carNotes'];
+} elseif ( ! empty( $content ) ) {
+	preg_match( '/<div[^>]*class="[^"]*car-notes[^"]*"[^>]*>(.*?)<\/div>/is', $content, $matches );
+	if ( ! empty( $matches[1] ) ) {
+		$car_notes = html_entity_decode( $matches[1] );
+	}
+}
 
 $original_paint_combined = trim( $original_paint_code . ' ' . $original_paint_color );
 $current_paint_combined = trim( $current_paint_code . ' ' . $current_paint_color );
@@ -81,7 +90,7 @@ $current_paint_combined = trim( $current_paint_code . ' ' . $current_paint_color
 				<?php if ( $car_notes ) : ?>
 				<div class="tucker-detail-row">
 					<span class="tucker-detail-label"><?php esc_html_e( 'Car Notes:', 'tucker-automobile-details' ); ?></span>
-					<span class="tucker-detail-value"><?php echo $car_notes ? $car_notes : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></span>
+					<div class="tucker-detail-value car-notes"><?php echo $car_notes ? wp_kses_post( $car_notes ) : esc_html__( 'Not set', 'tucker-automobile-details' ); ?></div>
 				</div>
 				<?php endif; ?>
 			</div>

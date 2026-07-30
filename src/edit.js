@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
-import { useBlockProps, InspectorControls, MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
+import { useBlockProps, InspectorControls, MediaUpload, MediaUploadCheck, RichText } from '@wordpress/block-editor';
 
 /**
  * WordPress dependencies
@@ -166,10 +166,14 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 
 				<PanelBody title={ __( 'Additional Notes', 'tucker-automobile-details' ) } initialOpen={ false }>
-					<TextControl
-						label={ __( 'Notes', 'tucker-automobile-details' ) }
+					<p className="components-base-control__label">{ __( 'Notes', 'tucker-automobile-details' ) }</p>
+					<RichText
+						tagName="div"
+						className="car-notes"
 						value={ carNotes }
 						onChange={ ( value ) => setAttributes( { carNotes: value } ) }
+						allowedFormats={ [ 'core/bold', 'core/italic', 'core/link', 'core/strikethrough' ] }
+						placeholder={ __( 'Add notes with links or styled text.', 'tucker-automobile-details' ) }
 					/>
 				</PanelBody>
 
@@ -278,6 +282,14 @@ export default function Edit( { attributes, setAttributes } ) {
 								<span className="tucker-detail-label">{ __( 'On Display:', 'tucker-automobile-details' ) }</span>
 								<span className="tucker-detail-value">{ onDisplay ? __( 'Yes', 'tucker-automobile-details' ) : __( 'No', 'tucker-automobile-details' ) }</span>
 							</div>
+							{ carNotes ? (
+								<div className="tucker-detail-row">
+									<span className="tucker-detail-label">{ __( 'Notes:', 'tucker-automobile-details' ) }</span>
+									<div className="tucker-detail-value">
+										<RichText.Content tagName="div" className="car-notes" value={ carNotes } />
+									</div>
+								</div>
+							) : null }
 						</div>
 						<div className="tucker-automobile-details__right">
 							{ imageUrl ? (
