@@ -74,8 +74,6 @@
     },
     "carNotes": {
       "type": "string",
-      "source": "html",
-      "selector": "div.car-notes",
       "default": ""
     },
     "imageId": {

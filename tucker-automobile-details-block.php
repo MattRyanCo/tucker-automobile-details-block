@@ -9,6 +9,8 @@
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       tucker-automobile-details
+ * GitHub Plugin URI: https://github.com/mattryanco/tucker-automobile-details-block
+ * Primary Branch: main
  *
  * @package TuckerAutomobileDetails
  */
@@ -152,3 +154,147 @@ function tucker_sync_car_details_from_title( $post_id, $post, $update ) {
 	add_action( 'save_post_car', 'tucker_sync_car_details_from_title', 10, 3 );
 }
 add_action( 'save_post_car', 'tucker_sync_car_details_from_title', 10, 3 );
+
+
+
+add_action( 'transition_post_status', 'tucker_sync_car_featured_image_from_block_on_publish', 20, 3 );
+
+/**
+ * On first publish, sync the Tucker block image to the car CPT:
+ * - sets the image as the featured image
+ * - sets the attachment parent to this car post
+ *
+ * Image resolution order:
+ * 1) Use block attribute imageId (if valid attachment)
+ * 2) Resolve imageUrl to existing attachment
+ * 3) Sideload imageUrl into Media Library and attach to car post
+ *
+ * @param string  $new_status New post status after transition.
+ * @param string  $old_status Previous post status before transition.
+ * @param WP_Post $post       Post object being transitioned.
+ * @return void
+ */
+function tucker_sync_car_featured_image_from_block_on_publish( $new_status, $old_status, $post ) {
+	// Only run when transitioning into publish for the first time.
+	// if ( 'publish' !== $new_status || 'publish' === $old_status ) {
+	// 	return;
+	// }
+
+	// Guard against invalid hook payload.
+	if ( ! $post instanceof WP_Post ) {
+		return;
+	}
+
+	// Limit behavior to car CPT.
+	if ( 'car' !== $post->post_type ) {
+		return;
+	}
+
+	// Ignore revisions and autosaves.
+	// if ( wp_is_post_revision( $post->ID ) || wp_is_post_autosave( $post->ID ) ) {
+	// 	return;
+	// }
+	// Ignore autosaves.
+	if ( wp_is_post_autosave( $post->ID ) ) {
+		return;
+	}
+
+	// Find the Tucker block attributes in post content.
+	$attrs = tucker_find_tucker_block_attrs_in_content( $post->post_content );
+	if ( empty( $attrs ) ) {
+		return;
+	}
+
+	// Normalize block image attributes.
+	$image_id  = isset( $attrs['imageId'] ) ? absint( $attrs['imageId'] ) : 0;
+	$image_url = isset( $attrs['imageUrl'] ) ? esc_url_raw( $attrs['imageUrl'] ) : '';
+
+	$attachment_id = 0;
+
+	// Preferred source: explicit imageId from block attributes.
+	if ( $image_id > 0 && 'attachment' === get_post_type( $image_id ) ) {
+		$attachment_id = $image_id;
+	}
+
+	// Fallback: map imageUrl to an existing Media Library attachment.
+	if ( ! $attachment_id && ! empty( $image_url ) ) {
+		$resolved = attachment_url_to_postid( $image_url );
+		if ( $resolved && 'attachment' === get_post_type( $resolved ) ) {
+			$attachment_id = (int) $resolved;
+		}
+	}
+
+	// Final fallback: sideload remote/local URL and create attachment.
+	if ( ! $attachment_id && ! empty( $image_url ) ) {
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$sideloaded_id = media_sideload_image( $image_url, $post->ID, null, 'id' );
+		if ( ! is_wp_error( $sideloaded_id ) ) {
+			$attachment_id = (int) $sideloaded_id;
+		}
+	}
+
+	// Exit if no valid attachment could be found or created.
+	if ( ! $attachment_id ) {
+		return;
+	}
+
+	// Ensure this car post is the attachment parent.
+	if ( (int) get_post_field( 'post_parent', $attachment_id ) !== (int) $post->ID ) {
+		wp_update_post(
+			array(
+				'ID'          => $attachment_id,
+				'post_parent' => $post->ID,
+			)
+		);
+	}
+
+	// Set attachment as featured image for the car post.
+	set_post_thumbnail( $post->ID, $attachment_id );
+}
+
+/**
+ * Parse post content and return attributes from the first
+ * telex/tucker-automobile-details block found.
+ *
+ * @param string $content Raw post_content string.
+ * @return array Block attributes, or empty array if not found.
+ */
+function tucker_find_tucker_block_attrs_in_content( $content ) {
+	// Fast path: skip parsing if content has no Gutenberg blocks.
+	if ( ! has_blocks( $content ) ) {
+		return array();
+	}
+
+	$blocks = parse_blocks( $content );
+
+	return tucker_find_tucker_block_attrs_recursive( $blocks );
+}
+
+/**
+ * Recursively walk parsed blocks to find the first Tucker block and return attrs.
+ *
+ * @param array[] $blocks Parsed block tree.
+ * @return array Matching block attributes, or empty array when absent.
+ */
+function tucker_find_tucker_block_attrs_recursive( array $blocks ) {
+	foreach ( $blocks as $block ) {
+		// Return immediately when target block is found.
+		if ( ! empty( $block['blockName'] ) && 'telex/tucker-automobile-details' === $block['blockName'] ) {
+			return isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+		}
+
+		// Search nested blocks (columns, groups, patterns, etc.).
+		if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+			$found = tucker_find_tucker_block_attrs_recursive( $block['innerBlocks'] );
+			if ( ! empty( $found ) ) {
+				return $found;
+			}
+		}
+	}
+
+	// No Tucker block in this branch.
+	return array();
+}
